@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="dark" lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="#111315" name="theme-color" />
+    <title>Dompet Matcha | Exclusive Finance</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#8fa88c", "primary-dim": "#738a71", "primary-deep": "#3a4738",
+                        "on-primary": "#121a11", "surface": "#1a1d21", "surface-low": "#22262b",
+                        "on-surface": "#d1d5db", "outline": "#6b7280",
+                        "error": "#c97a7e", "error-bg": "#592b2d",
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] },
+                    borderRadius: { DEFAULT: "0.75rem", lg: "1rem", xl: "1.5rem" }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        input:focus, button:focus, input:focus-visible, button:focus-visible { 
+            outline: none !important; 
+            box-shadow: none !important; 
+            border-color: transparent !important;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        :root {
+            --glass: rgba(26, 29, 33, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            background: #111315;
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+        }
+        
+        #customToast {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: #592b2d; color: #e5b3b5; padding: 12px 20px; border-radius: 12px;
+            font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.3s var(--ease-smooth); z-index: 100;
+            border: 1px solid rgba(201,122,126,0.3);
+            display: flex; align-items: center; gap: 8px;
+            pointer-events: none;
+        }
+        #customToast.show { top: 24px; pointer-events: auto; }
+
+        .app { width: 100%; max-width: 500px; padding: 24px 16px 80px; display: flex; flex-direction: column; gap: 20px; }
+        .card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 1.25rem; }
+        
+        .hero-card {
+            background: linear-gradient(145deg, #1f2328 0%, #15171a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 1.5rem; padding: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: #8fa88c; color: #121a11; font-weight: 600;
+            border: none; cursor: pointer; transition: all 0.2s var(--ease-smooth);
+            border-radius: 1rem;
+        }
+        .btn-primary:hover { background: #9bb598; transform: translateY(-1px); }
+        
+        .input-wrap {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem; display: flex; align-items: center; height: 48px; transition: 0.2s;
+        }
+        .input-wrap:focus-within { border-color: #8fa88c; }
+        
+        .tx-item { border-radius: 12px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .tx-item:last-child { border-bottom: none; }
+        
+        .cat-chip { 
+            padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; 
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; transition: 0.2s; color: #9ca3af;
+        }
+        .cat-chip.active { background: rgba(143, 168, 140, 0.15); border-color: #8fa88c; color: #8fa88c; }
+        .cat-chip.active.expense-cat { background: rgba(201, 122, 126, 0.15); border-color: #c97a7e; color: #c97a7e; }
+
+        .type-toggle { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; }
+        .type-btn { flex: 1; padding: 10px; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; text-align: center; color: #6b7280; transition: 0.2s; }
+        .type-btn.active.expense { background: #592b2d; color: #e5b3b5; }
+        .type-btn.active.income { background: #3a4738; color: #c3d4c0; }
+        
+        .badge { font-size: 9px; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #9ca3af; letter-spacing: 0.05em; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <!-- Custom Toast -->
+    <div id="customToast">
+        <span class="material-symbols-outlined" style="font-size:18px;">error</span>
+        <span id="toastMsg">Pesan error</span>
+    </div>
+
+    <div class="app">
+        <!-- HEADER -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <h1 style="font-size:18px;font-weight:600;color:#e5e7eb;">Matcha <span style="font-weight:300;color:#9ca3af">Finance</span></h1>
+                <p id="headerDate" style="font-size:11px;color:#6b7280;"></p>
+            </div>
+        </div>
+
+        <!-- HERO CARD -->
+        <div class="hero-card">
+            <p style="font-size:11px;color:#9ca3af;margin-bottom:8px;">Total Saldo</p>
+            <h3 id="grandTotal" style="font-size:36px;font-weight:700;color:#e5e7eb;letter-spacing:-1px;">Rp 0</h3>
+            
+            <div style="display:flex;gap:16px;margin-top:24px;">
+                <div style="flex:1; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px;">
+                    <p style="font-size:10px;color:#6b7280;margin-bottom:4px;">Pemasukan (Bulan ini)</p>
+                    <p id="monthIncomeText" style="font-size:14px;font-weight:600;color:#8fa88c;">Rp 0</p>
+                </div>
+                <div style="flex:1; background:rgba(255,255,255,0.03); padding:12px; border-radius:12px;">
+                    <p style="font-size:10px;color:#6b7280;margin-bottom:4px;">Pengeluaran (Bulan ini)</p>
+                    <p id="monthSpendText" style="font-size:14px;font-weight:600;color:#c97a7e;">Rp 0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- INPUT SECTION -->
+        <div class="card" style="padding:20px;display:flex;flex-direction:column;gap:16px;">
+            <div class="type-toggle">
+                <div class="type-btn active expense" id="btnExpense" onclick="setType('expense')">Pengeluaran</div>
+                <div class="type-btn income" id="btnIncome" onclick="setType('income')">Pemasukan</div>
+            </div>
+            
+            <div class="input-wrap">
+                <input id="descInput" type="text" placeholder="Catatan transaksi..." style="background:transparent;border:none;flex:1;color:#e5e7eb;padding:0 16px;font-size:14px;" onkeydown="if(event.key==='Enter') $('amtInput').focus();" />
+            </div>
+            <div class="input-wrap">
+                <span style="padding-left:16px;color:#6b7280;font-size:14px;">Rp</span>
+                <input id="amtInput" type="number" placeholder="0" style="background:transparent;border:none;flex:1;color:#e5e7eb;padding:0 16px;font-size:14px;" onkeydown="if(event.key==='Enter') addTx();" />
+            </div>
+
+            <!-- KATEGORI BARU -->
+            <div>
+                <p style="font-size:11px;color:#6b7280;margin-bottom:8px;">Kategori</p>
+                <div id="catContainer" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <!-- Diisi via JS -->
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="addTx()" style="height:48px;font-size:14px;margin-top:8px;">Simpan Catatan</button>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="card" style="padding:20px;">
+            <h2 style="font-size:14px;font-weight:600;margin-bottom:16px;color:#e5e7eb;">Riwayat Transaksi</h2>
+            <div id="txList" style="display:flex;flex-direction:column;"></div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        let state = {
+            txs: JSON.parse(localStorage.getItem('matcha_formal_v1')) || [],
+            type: 'expense',
+            cat: 'Lainnya'
+        };
+
+        const cats = {
+            expense: ['Makan', 'Transport', 'Belanja', 'Tagihan', 'Lainnya'],
+            income: ['Gaji', 'Bonus', 'Investasi', 'Lainnya']
+        };
+
+        let toastTimer;
+        function showToast(msg) {
+            $('toastMsg').textContent = msg;
+            $('customToast').classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => $('customToast').classList.remove('show'), 3000);
+        }
+
+        function init() {
+            $('headerDate').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            renderCats();
+            render();
+        }
+
+        function setType(t) {
+            state.type = t;
+            state.cat = cats[t][0]; // reset cat ke default
+            $('btnExpense').classList.toggle('active', t === 'expense');$('btnIncome').classList.toggle('active', t === 'income');
+            renderCats();
+        }
+
+        function setCat(c) {
+            state.cat = c;
+            renderCats();
+        }
+
+        function renderCats() {
+            const container = $('catContainer');
+            container.innerHTML = '';
+            cats[state.type].forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = `cat-chip ${state.cat === c ? 'active' : ''} ${state.type === 'expense' && state.cat === c ? 'expense-cat' : ''}`;
+                btn.textContent = c;
+                btn.onclick = () => setCat(c);
+                container.appendChild(btn);
+            });
+        }
+
+        function fmt(n) { return new Intl.NumberFormat('id-ID').format(n); }
+        function getMonthKey(d = new Date()) { return `${d.getFullYear()}-${d.getMonth()}`; }
+
+        function addTx() {
+            const desc = $('descInput').value.trim() || state.cat;
+            const amt = parseInt($('amtInput').value);
+            
+            if (!amt || amt <= 0) return showToast('Nominalnya diisi yang bener lah!');
+
+            const tx = {
+                id: Date.now(),
+                desc,
+                cat: state.cat,
+                amount: state.type === 'expense' ? -amt : amt,
+                date: new Date().toISOString(),
+                mKey: getMonthKey()
+            };
+
+            state.txs.unshift(tx);
+            localStorage.setItem('matcha_formal_v1', JSON.stringify(state.txs));
+            
+            $('descInput').value = '';$('amtInput').value = '';
+            render();
+        }
+
+        function delTx(id) {
+            state.txs = state.txs.filter(t => t.id !== id);
+            localStorage.setItem('matcha_formal_v1', JSON.stringify(state.txs));
+            render();
+        }
+
+        function render() {
+            const list = $('txList');
+            list.innerHTML = '';
+            let balance = 0, mInc = 0, mExp = 0;
+            const currMKey = getMonthKey();
+
+            state.txs.forEach(t => {
+                balance += t.amount;
+                if (t.mKey === currMKey) {
+                    if (t.amount > 0) mInc += t.amount;
+                    else mExp += Math.abs(t.amount);
+                }
+                
+                const isExp = t.amount < 0;
+                list.innerHTML += `
+                    <div class="tx-item">
+                        <div style="flex:1;">
+                            <div style="font-size:13px;color:#e5e7eb;font-weight:500;">${t.desc}</div>
+                            <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+                                <span class="badge">${t.cat}</span>
+                                <span style="font-size:10px;color:#6b7280;">${new Date(t.date).toLocaleDateString('id-ID', {day:'numeric', month:'short'})}</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span style="font-size:13px;font-weight:600;color:${isExp ? '#c97a7e' : '#8fa88c'}">${isExp ? '-' : '+'}Rp ${fmt(Math.abs(t.amount))}</span>
+                            <span class="material-symbols-outlined" onclick="delTx(${t.id})" style="font-size:16px;color:#4b5563;cursor:pointer;">delete</span>
+                        </div>
+                    </div>`;
+            });
+
+            if(state.txs.length === 0) list.innerHTML = '<div style="text-align:center;color:#4b5563;font-size:12px;padding:20px;">Kosong melompong.</div>';
+
+            $('grandTotal').textContent = `Rp ${fmt(balance)}`;
+            $('monthIncomeText').textContent = `Rp ${fmt(mInc)}`;
+            $('monthSpendText').textContent = `Rp ${fmt(mExp)}`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
